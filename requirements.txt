@@ -1,0 +1,23 @@
+# Google Agent Development Kit
+google-adk
+
+# Core Google AI SDK
+google-genai
+
+# OCR
+google-cloud-vision
+
+# PDF → image conversion
+PyMuPDF
+
+# Translation
+googletrans==4.0.2
+
+# Docx export
+python-docx
+
+# For local environment variable management
+python-dotenv
+
+# Streamlit
+streamlit

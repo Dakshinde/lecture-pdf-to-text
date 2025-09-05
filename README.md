@@ -42,4 +42,4 @@ A simple **Streamlit web app** that:
 ---
 
 ## Author
-Built with ❤️ by **Dakshinde**
+Built with 🙌 by **Dakshinde**

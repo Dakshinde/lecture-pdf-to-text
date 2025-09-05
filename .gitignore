@@ -1,0 +1,20 @@
+# Python cache & env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+*.log
+.venv/
+env/
+venv/
+
+# Secrets and credentials
+.env
+keys/
+*.json
+gcp_creds.json
+
+# Streamlit cache
+.streamlit/

@@ -5,7 +5,7 @@ A simple **Streamlit web app** that:
 2. Translates them into **English** using **Gemini API**.
 3. Summarizes the content into exam-ready notes.
 
-👉 **Live App:** [Click here to open](https://lecture-pdf-to-text-iwfqohxnbkdpz62eafhnqq.streamlit.app/)
+👉 **Live App:** [Click here to open](https://lecture-pdf-to-text.streamlit.app/)
 
 ---
 

@@ -16,23 +16,23 @@ from google.cloud import vision
 from google import genai
 from google.genai import types as genai_types
 from docx import Document
-from dotenv import load_dotenv
 
-# load .env in dev
-load_dotenv()
 
-# Config / credentials (Gemini API key)
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEN_MODEL = os.getenv("GEN_MODEL", "gemini-2.0-flash")
+import streamlit as st
+from google.oauth2 import service_account
 
-if not GEMINI_API_KEY:
-    raise RuntimeError("GEMINI_API_KEY not set. Get one from Google AI Studio and set GEMINI_API_KEY in your env or .env file. See README.")
+# Read secrets from Streamlit Cloud
+GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
+GEN_MODEL = st.secrets.get("GEN_MODEL", "gemini-2.0-flash")
 
-# Init Gemini client using Developer API key (consumer)
+# Init Gemini client using API key
 client = genai.Client(api_key=GEMINI_API_KEY)
 
-# Vision client uses GOOGLE_APPLICATION_CREDENTIALS (service account)
-vision_client = vision.ImageAnnotatorClient()
+# Setup Google Vision API with service account from secrets
+GCP_CREDS = st.secrets["gcp_service_account"]
+credentials = service_account.Credentials.from_service_account_info(GCP_CREDS)
+vision_client = vision.ImageAnnotatorClient(credentials=credentials)
+
 
 # Helpers
 def convert_pdf_to_images(pdf_bytes: bytes, dpi: int = 220) -> List[bytes]:
@@ -175,3 +175,4 @@ if st.session_state.get("summary"):
     st.download_button("Download summary (.docx)", to_docx_bytes(st.session_state["summary"]), file_name="summary.docx")
 
 st.caption("Tip: best OCR results at ~300 DPI, dark ink on light background.")
+

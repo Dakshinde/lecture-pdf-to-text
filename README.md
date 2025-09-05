@@ -9,7 +9,7 @@ A simple **Streamlit web app** that:
 
 ---
 
-## 🚀 Features
+## Features
 - 📄 Upload handwritten notes in **PDF, PNG, JPG, JPEG**.
 - 🔍 OCR with Google Vision API (supports Marathi handwriting).
 - 🌐 Translate Marathi → English.
@@ -18,7 +18,7 @@ A simple **Streamlit web app** that:
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 - [Streamlit](https://streamlit.io/) – Web interface
 - [Google Cloud Vision API](https://cloud.google.com/vision) – OCR
 - [Google Gemini API](https://ai.google.dev) – Translation & Summarization
@@ -27,13 +27,13 @@ A simple **Streamlit web app** that:
 
 ---
 
-## 🔒 Security
+## Security
 - All **API keys and credentials** are stored securely in **Streamlit Secrets**.
 - No sensitive files (like `.env` or service account JSONs) are committed to GitHub.
 
 ---
 
-## 👨‍💻 How to Use
+## How to Use
 1. Open the app from the link above.
 2. Upload your handwritten notes (PDF/JPG/PNG).
 3. Wait for OCR → Translation → Summary.
@@ -41,5 +41,5 @@ A simple **Streamlit web app** that:
 
 ---
 
-## 📬 Author
+## Author
 Built with ❤️ by **Dakshinde**

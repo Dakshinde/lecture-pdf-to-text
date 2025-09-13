@@ -97,7 +97,6 @@ st.set_page_config(
 st.title("📖 Smart Notes Assistant (OCR → Translate → Summarize)")
 st.caption("Upload or paste notes, and let AI clean, translate, and summarize them for you.")
 
-# This is the new CSS block. Replace the old one with this.
 st.markdown(
     """
     <style>
@@ -109,24 +108,17 @@ st.markdown(
     }
     
     .stApp { 
-        background-color: #f4f6f8; 
+        background: linear-gradient(to right, #ff7e5f, #feb47b);
+        background-attachment: fixed;
     }
     
     h1, h2, h3 { 
         color: #1a5276; 
         font-weight: 600; 
     }
-    
-    .st-emotion-cache-1j5e61g {
-        background-color: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        padding: 2rem;
-        margin-bottom: 2rem;
-    }
-    
-    /* General styling for containers and expanders */
-    .st-emotion-cache-121p961 {
+
+    /* Cards / boxes */
+    .st-emotion-cache-1j5e61g, .st-emotion-cache-121p961 {
         background-color: white;
         border-radius: 12px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
@@ -154,26 +146,6 @@ st.markdown(
         border: 1px solid #dcdfe4 !important;
         box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
         background-color: #fafafa;
-    }
-    
-    .st-emotion-cache-1r65j0p { /* Chat message container */
-        background-color: #e8f0fe;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-    
-    .st-emotion-cache-5l2t2t { /* Chat message container (User) */
-        background-color: #f0f3f6;
-    }
-    
-    .st-emotion-cache-121p961, .st-emotion-cache-1wivf3c {
-        border-radius: 12px;
-    }
-    
-    .stSuccess, .stInfo, .stWarning {
-        border-radius: 8px;
-        border-left: 5px solid;
     }
     </style>
     """,
@@ -264,3 +236,4 @@ if st.session_state.get("summary"):
     st.download_button("Download summary (.docx)", to_docx_bytes(st.session_state["summary"]), file_name="summary.docx")
 
 st.caption("Tip: best OCR results at ~300 DPI, dark ink on light background.")
+

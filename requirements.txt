@@ -24,5 +24,7 @@ python-dotenv
 streamlit
 
 streamlit-image-paste
+streamlit-paste-button
+
 
 

@@ -97,6 +97,7 @@ st.set_page_config(
 st.title("📖 Smart Notes Assistant (OCR → Translate → Summarize)")
 st.caption("Upload or paste notes, and let AI clean, translate, and summarize them for you.")
 
+# This is the new CSS block. Replace the old one with this.
 st.markdown(
     """
     <style>

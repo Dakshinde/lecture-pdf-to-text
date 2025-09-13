@@ -97,21 +97,7 @@ st.set_page_config(
 st.title("📖 Smart Notes Assistant (OCR → Translate → Summarize)")
 st.caption("Upload or paste notes, and let AI clean, translate, and summarize them for you.")
 
-# Adding back a simple style for better readability
-st.markdown(
-    """
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-    html, body, [class^="st-"], [class*=" st-"] {
-        font-family: 'Roboto', sans-serif;
-        color: #333;
-    }
-    .stApp { background-color: #f4f6f8; }
-    h1, h2, h3 { color: #1a5276; font-weight: 600; }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+
 
 with st.expander("Environment & quick checks"):
     st.write("Using Gemini API key:", bool(GEMINI_API_KEY))
@@ -207,3 +193,4 @@ if st.session_state.get("summary"):
     st.download_button("Download summary (.docx)", to_docx_bytes(st.session_state["summary"]), file_name="summary.docx")
 
 st.caption("Tip: best OCR results at ~300 DPI, dark ink on light background.")
+

@@ -108,8 +108,7 @@ st.markdown(
     }
 
     .stApp { 
-        background: linear-gradient(to right, #ff7e5f, #feb47b);
-        background-attachment: fixed;
+        background: linear-gradient(to right, rgba(255,126,95,0.1), rgba(254,180,123,0.1)), #ffffff;
         padding: 2rem;   /* ✅ added for spacing */
     }
 
@@ -246,6 +245,7 @@ if st.session_state.get("summary"):
     st.download_button("Download summary (.docx)", to_docx_bytes(st.session_state["summary"]), file_name="summary.docx")
 
 st.caption("Tip: best OCR results at ~300 DPI, dark ink on light background.")
+
 
 
 

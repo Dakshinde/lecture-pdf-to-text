@@ -135,12 +135,13 @@ st.markdown(
     }
 
     button[kind="primary"] {
-        background: linear-gradient(90deg, #1f78b4, #004b80);
+        background: linear-gradient(to right, #ff7e5f, #feb47b); 
         color: white;
         border-radius: 8px;
         padding: 0.8em 1.5em;
         font-weight: 500;
         transition: transform 0.2s, box-shadow 0.2s;
+        border: none;
     }
     
     button[kind="primary"]:hover {

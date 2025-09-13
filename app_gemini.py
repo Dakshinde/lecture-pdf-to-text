@@ -97,12 +97,32 @@ st.set_page_config(
 st.title("📖 Smart Notes Assistant (OCR → Translate → Summarize)")
 st.caption("Upload or paste notes, and let AI clean, translate, and summarize them for you.")
 
-# This `st.expander` contains the "Environment & quick checks" information.
-# The `st.subheader("keywords")` line that was causing the overlap is not here.
+# Adding back a simple style for better readability
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+    html, body, [class^="st-"], [class*=" st-"] {
+        font-family: 'Roboto', sans-serif;
+        color: #333;
+    }
+    .stApp { background-color: #f4f6f8; }
+    h1, h2, h3 { color: #1a5276; font-weight: 600; }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 with st.expander("Environment & quick checks"):
     st.write("Using Gemini API key:", bool(GEMINI_API_KEY))
     st.write("Vision creds (GOOGLE_APPLICATION_CREDENTIALS):", bool(os.getenv("GOOGLE_APPLICATION_CREDENTIALS")))
     st.write("Gemini model:", GEN_MODEL)
+
+# --- DEBUGGING SECTION ---
+with st.expander("Paste Button Debug"):
+    st.info("After pressing Ctrl+V, check below to see if data is being received.")
+    st.write("`paste_result` value:", st.session_state.get('paste_result', 'No paste event yet'))
+# --- END DEBUGGING SECTION ---
 
 uploaded = st.file_uploader("Upload handwritten notes (.png/.jpeg/.pdf)", type=["png","jpg","jpeg","pdf"])
 dpi = st.slider("OCR DPI", 150, 400, 220)
@@ -122,8 +142,12 @@ elif paste_result.image_data is not None:
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     pages = [buf.getvalue()]
+    # Store the result for debugging
+    st.session_state['paste_result'] = 'Image data received'
     # Force a rerun to process the new image
     st.rerun()
+else:
+    st.session_state['paste_result'] = 'No image data'
 
 
 ocr_texts = []
@@ -183,4 +207,3 @@ if st.session_state.get("summary"):
     st.download_button("Download summary (.docx)", to_docx_bytes(st.session_state["summary"]), file_name="summary.docx")
 
 st.caption("Tip: best OCR results at ~300 DPI, dark ink on light background.")
-

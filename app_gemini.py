@@ -1,10 +1,3 @@
-# app_gemini.py
-"""
-Streamlit app: Upload notes (image/pdf) -> Vision OCR -> Edit text ->
-Translate+Summarize+QA with Gemini Developer API (api key).
-Run: streamlit run app_gemini.py
-"""
-
 import os
 import io
 from typing import List, Tuple
@@ -16,7 +9,7 @@ from google import genai
 from google.genai import types as genai_types
 from docx import Document
 from google.oauth2 import service_account
-from streamlit_image_paste import image_paste
+from streamlit_paste_button import paste_image_button as pbutton
 from PIL import Image
 
 # Read secrets from Streamlit Cloud
@@ -133,7 +126,8 @@ with st.expander("Environment & quick checks"):
 uploaded = st.file_uploader("Upload handwritten notes (.png/.jpeg/.pdf)", type=["png","jpg","jpeg","pdf"])
 dpi = st.slider("OCR DPI", 150, 400, 220)
 
-pasted_image = image_paste("Paste an image (Ctrl+V after screenshot)")
+paste_result = pbutton(label="📋 Paste an image (Ctrl+V after screenshot)")
+
 pages = []
 if uploaded:
     raw = uploaded.read()
@@ -141,12 +135,15 @@ if uploaded:
         pages = convert_pdf_to_images(raw, dpi=dpi)
     else:
         pages = [raw]
-
-elif pasted_image is not None:
-    img = Image.open(pasted_image)
+# Use the result from the paste button
+elif paste_result.image_data is not None:
+    img = paste_result.image_data
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     pages = [buf.getvalue()]
+    # Force a rerun to process the new image
+    st.rerun()
+
 
 ocr_texts = []
 for i, p in enumerate(pages, 1):

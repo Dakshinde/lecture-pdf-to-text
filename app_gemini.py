@@ -16,7 +16,7 @@ from google import genai
 from google.genai import types as genai_types
 from docx import Document
 from google.oauth2 import service_account
-from streamlit_image_input import image_input
+from streamlit_image_paste import image_paste
 from PIL import Image
 
 # Read secrets from Streamlit Cloud
@@ -133,7 +133,7 @@ with st.expander("Environment & quick checks"):
 uploaded = st.file_uploader("Upload handwritten notes (.png/.jpeg/.pdf)", type=["png","jpg","jpeg","pdf"])
 dpi = st.slider("OCR DPI", 150, 400, 220)
 
-pasted_image = image_input("Paste an image (Ctrl+V after screenshot)", key="pasted")
+pasted_image = image_paste("Paste an image (Ctrl+V after screenshot)")
 pages = []
 if uploaded:
     raw = uploaded.read()

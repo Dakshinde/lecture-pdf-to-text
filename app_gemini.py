@@ -101,43 +101,42 @@ st.markdown(
     """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-    
+
     html, body, [class^="st-"], [class*=" st-"] {
         font-family: 'Roboto', sans-serif;
         color: #333;
     }
-    
-    .stApp {
-        background: linear-gradient(to right, rgba(255,126,95,0.1), rgba(254,180,123,0.1)), #ffffff;
+
+    .stApp { 
+        background: linear-gradient(to right, #ff7e5f, #feb47b);
+        background-attachment: fixed;
+        padding: 2rem;   /* ✅ added for spacing */
     }
 
-
-    
     h1, h2, h3 { 
         color: #1a5276; 
         font-weight: 600; 
     }
 
-    /* Expander (Environment & quick checks) */
-    .stExpander {
-        background-color: white;
+    /* Expander fix */
+    div[data-testid="stExpander"] {
+        background: #ffffff;   /* white card */
         border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         padding: 1rem;
-        margin-bottom: 1rem;
+        margin-top: 1rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    /* Text areas */
-    .stTextArea textarea {
-        border-radius: 8px !important;
-        border: 1px solid #dcdfe4 !important;
-        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-        background-color: #fafafa;
+    div[data-testid="stExpander"] button {
+        background: linear-gradient(to right, #ff7e5f, #feb47b);
+        color: white !important;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
     }
 
-    /* Buttons */
-    .stButton button {
-        background: linear-gradient(to right, #ff7e5f, #feb47b); 
+    button[kind="primary"] {
+        background: linear-gradient(to right, #ff7e5f, #feb47b);
         color: white;
         border-radius: 8px;
         padding: 0.8em 1.5em;
@@ -145,15 +144,23 @@ st.markdown(
         transition: transform 0.2s, box-shadow 0.2s;
         border: none;
     }
-    
-    .stButton button:hover {
+
+    button[kind="primary"]:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    textarea {
+        border-radius: 8px !important;
+        border: 1px solid #dcdfe4 !important;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        background-color: #fafafa;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
+
 
 with st.expander("Environment & quick checks"):
     st.write("Using Gemini API key:", bool(GEMINI_API_KEY))
@@ -239,6 +246,7 @@ if st.session_state.get("summary"):
     st.download_button("Download summary (.docx)", to_docx_bytes(st.session_state["summary"]), file_name="summary.docx")
 
 st.caption("Tip: best OCR results at ~300 DPI, dark ink on light background.")
+
 
 
 

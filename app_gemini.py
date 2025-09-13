@@ -9,7 +9,7 @@ from google import genai
 from google.genai import types as genai_types
 from docx import Document
 from google.oauth2 import service_account
-from streamlit_paste_button import paste_image_button as pbutton
+from streamlit_image_paste import paste_image
 from PIL import Image
 
 # Read secrets from Streamlit Cloud
@@ -104,17 +104,16 @@ with st.expander("Environment & quick checks"):
     st.write("Vision creds (GOOGLE_APPLICATION_CREDENTIALS):", bool(os.getenv("GOOGLE_APPLICATION_CREDENTIALS")))
     st.write("Gemini model:", GEN_MODEL)
 
-# --- DEBUGGING SECTION ---
-with st.expander("Paste Button Debug"):
-    st.info("After pressing Ctrl+V, check below to see if data is being received.")
-    st.write("`paste_result` value:", st.session_state.get('paste_result', 'No paste event yet'))
-# --- END DEBUGGING SECTION ---
 
 uploaded = st.file_uploader("Upload handwritten notes (.png/.jpeg/.pdf)", type=["png","jpg","jpeg","pdf"])
 dpi = st.slider("OCR DPI", 150, 400, 220)
 
-paste_result = pbutton(label="📋 Paste an image (Ctrl+V after screenshot)")
+pasted_img = paste_image(label="📋 Paste an image (Ctrl+V after screenshot)", key="pasted_img")
 
+if pasted_img is not None:
+    buf = io.BytesIO()
+    pasted_img.save(buf, format="PNG")
+    pages = [buf.getvalue()]
 pages = []
 if uploaded:
     raw = uploaded.read()
@@ -122,16 +121,7 @@ if uploaded:
         pages = convert_pdf_to_images(raw, dpi=dpi)
     else:
         pages = [raw]
-# Use the result from the paste button
-elif paste_result.image_data is not None:
-    img = paste_result.image_data
-    buf = io.BytesIO()
-    img.save(buf, format="PNG")
-    pages = [buf.getvalue()]
-    # Store the result for debugging
-    st.session_state['paste_result'] = 'Image data received'
-    # Force a rerun to process the new image
-    st.rerun()
+
 else:
     st.session_state['paste_result'] = 'No image data'
 
@@ -193,4 +183,5 @@ if st.session_state.get("summary"):
     st.download_button("Download summary (.docx)", to_docx_bytes(st.session_state["summary"]), file_name="summary.docx")
 
 st.caption("Tip: best OCR results at ~300 DPI, dark ink on light background.")
+
 

@@ -1,6 +1,6 @@
 # app_gemini.py
 """
-Streamlit app: Upload Marathi notes (image/pdf) -> Vision OCR -> Edit Marathi ->
+Streamlit app: Upload notes (image/pdf) -> Vision OCR -> Edit text ->
 Translate+Summarize+QA with Gemini Developer API (api key).
 Run: streamlit run app_gemini.py
 """
@@ -8,7 +8,6 @@ Run: streamlit run app_gemini.py
 import os
 import io
 from typing import List, Tuple
-import base64
 
 import streamlit as st
 import fitz  # PyMuPDF
@@ -16,10 +15,9 @@ from google.cloud import vision
 from google import genai
 from google.genai import types as genai_types
 from docx import Document
-
-
-import streamlit as st
 from google.oauth2 import service_account
+from streamlit_image_input import image_input
+from PIL import Image
 
 # Read secrets from Streamlit Cloud
 GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
@@ -32,7 +30,6 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 GCP_CREDS = st.secrets["gcp_service_account"]
 credentials = service_account.Credentials.from_service_account_info(GCP_CREDS)
 vision_client = vision.ImageAnnotatorClient(credentials=credentials)
-
 
 # Helpers
 def convert_pdf_to_images(pdf_bytes: bytes, dpi: int = 220) -> List[bytes]:
@@ -61,10 +58,9 @@ def to_docx_bytes(text: str) -> bytes:
     buf.seek(0)
     return buf.read()
 
-# --- Gemini helpers (simple wrapper)
+# --- Gemini helpers
 def gemini_generate(system_prompt: str, user_prompt: str,
                     max_output_tokens: int = 1500, temperature: float = 0.2) -> str:
-    """Call Google GenAI simply by sending a combined prompt string."""
     combined = f"SYSTEM:\n{system_prompt}\n\nUSER:\n{user_prompt}"
     resp = client.models.generate_content(
         model=GEN_MODEL,
@@ -76,9 +72,9 @@ def gemini_generate(system_prompt: str, user_prompt: str,
     )
     return getattr(resp, "text", "")
 
-def translate_marathi_to_english(marathi_text: str) -> str:
+def translate_marathi_to_english(text: str) -> str:
     system = "You are a precise translator. Translate Marathi to idiomatic English, preserving technical terms."
-    user = f"Translate the following Marathi text to English. Reply only with the translated English text.\n\n{marathi_text}"
+    user = f"Translate the following Marathi text to English. Reply only with the translated English text.\n\n{text}"
     return gemini_generate(system, user, max_output_tokens=2500, temperature=0.0)
 
 def summarize_english(english_text: str, length_pages: Tuple[int, int] = (1,2)) -> str:
@@ -99,8 +95,35 @@ def answer_question_with_context(question: str, context: str = "") -> str:
 # -------------------------
 # Streamlit UI
 # -------------------------
-st.set_page_config(page_title="Marathi Notes → Gemini (API key)", layout="wide")
-st.title("Marathi Lecture Notes → Gemini (translate & summarize)")
+st.set_page_config(
+    page_title="Lecture Notes Assistant",
+    page_icon="📝",
+    layout="wide"
+)
+
+st.title("📖 Smart Notes Assistant (OCR → Translate → Summarize)")
+st.caption("Upload or paste notes, and let AI clean, translate, and summarize them for you.")
+
+st.markdown(
+    """
+    <style>
+    .stApp { background-color: #f8fdf9; }
+    h1, h2, h3 { font-family: 'Segoe UI', sans-serif; color: #166534; }
+    button[kind="primary"] {
+        background: linear-gradient(90deg, #22c55e, #15803d);
+        color: white;
+        border-radius: 10px;
+        padding: 0.6em 1.2em;
+        font-weight: 600;
+    }
+    textarea {
+        border-radius: 12px !important;
+        border: 1px solid #bbf7d0 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 with st.expander("Environment & quick checks"):
     st.write("Using Gemini API key:", bool(GEMINI_API_KEY))
@@ -110,69 +133,75 @@ with st.expander("Environment & quick checks"):
 uploaded = st.file_uploader("Upload handwritten notes (.png/.jpeg/.pdf)", type=["png","jpg","jpeg","pdf"])
 dpi = st.slider("OCR DPI", 150, 400, 220)
 
+pasted_image = image_input("Paste an image (Ctrl+V after screenshot)", key="pasted")
+pages = []
 if uploaded:
     raw = uploaded.read()
-    pages = []
     if uploaded.type == "application/pdf" or uploaded.name.lower().endswith(".pdf"):
         pages = convert_pdf_to_images(raw, dpi=dpi)
     else:
         pages = [raw]
 
-    ocr_texts = []
-    for i, p in enumerate(pages, 1):
-        with st.spinner(f"OCR page {i}/{len(pages)}..."):
-            try:
-                t = ocr_image_bytes(p)
-            except Exception as e:
-                st.error(f"OCR error on page {i}: {e}")
-                t = ""
-            ocr_texts.append(t)
+elif pasted_image is not None:
+    img = Image.open(pasted_image)
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    pages = [buf.getvalue()]
 
-    combined_marathi = "\n\n".join(t.strip() for t in ocr_texts if t.strip())
-    st.subheader("1) Extracted Marathi text — edit as needed")
-    marathi_edit = st.text_area("Marathi (editable)", value=combined_marathi, height=350)
-    st.session_state["marathi_edit"] = marathi_edit
+ocr_texts = []
+for i, p in enumerate(pages, 1):
+    with st.spinner(f"OCR page {i}/{len(pages)}..."):
+        try:
+            t = ocr_image_bytes(p)
+        except Exception as e:
+            st.error(f"OCR error on page {i}: {e}")
+            t = ""
+        ocr_texts.append(t)
 
-    if st.button("➡️ Translate & Summarize"):
-        if not marathi_edit.strip():
-            st.warning("No text to translate.")
-        else:
-            with st.spinner("Translating (Gemini)..."):
-                translation = translate_marathi_to_english(marathi_edit)
-                st.session_state["translation"] = translation
-            with st.spinner("Summarizing (Gemini)..."):
-                summary = summarize_english(translation)
-                st.session_state["summary"] = summary
-                st.success("Done.")
+combined_text = "\n\n".join(t.strip() for t in ocr_texts if t.strip())
+st.subheader("1) Extracted text — edit as needed")
+notes_edit = st.text_area("Extracted text (editable)", value=combined_text, height=350)
+st.session_state["notes_edit"] = notes_edit
 
-    # QA area
-    st.subheader("Quick QA")
-    question = st.text_input("Ask a question about these notes")
-    if st.button("Ask"):
-        ctx = st.session_state.get("summary", "") or st.session_state.get("translation", "")
-        if not question.strip():
-            st.warning("Type a question first.")
-        else:
-            with st.spinner("Answering..."):
-                ans = answer_question_with_context(question, ctx)
-                st.session_state["last_answer"] = ans
-                st.markdown("**Answer:**")
-                st.write(ans)
+if st.button("➡️ Translate & Summarize"):
+    if not notes_edit.strip():
+        st.warning("No text to translate.")
+    else:
+        with st.spinner("Translating (Gemini)..."):
+            translation = translate_marathi_to_english(notes_edit)
+            st.session_state["translation"] = translation
+        with st.spinner("Summarizing (Gemini)..."):
+            summary = summarize_english(translation)
+            st.session_state["summary"] = summary
+            st.success("Done.")
+
+# QA area
+st.subheader("Quick QA")
+question = st.text_input("Ask a question about these notes")
+if st.button("Ask"):
+    ctx = st.session_state.get("summary", "") or st.session_state.get("translation", "")
+    if not question.strip():
+        st.warning("Type a question first.")
+    else:
+        with st.spinner("Answering..."):
+            ans = answer_question_with_context(question, ctx)
+            st.session_state["last_answer"] = ans
+            st.markdown("**💡 Answer:**")
+            st.success(ans)
 
 # Outputs and downloads
 if st.session_state.get("translation"):
     st.markdown("---")
-    st.subheader("English Translation")
-    st.write(st.session_state["translation"])
+    st.markdown("### ✨ English Translation")
+    st.success(st.session_state["translation"])
     st.download_button("Download translation (.txt)", st.session_state["translation"].encode("utf-8"), file_name="translation.txt")
     st.download_button("Download translation (.docx)", to_docx_bytes(st.session_state["translation"]), file_name="translation.docx")
 
 if st.session_state.get("summary"):
     st.markdown("---")
-    st.subheader("Summary")
-    st.write(st.session_state["summary"])
+    st.markdown("### 📌 Summary")
+    st.info(st.session_state["summary"])
     st.download_button("Download summary (.txt)", st.session_state["summary"].encode("utf-8"), file_name="summary.txt")
     st.download_button("Download summary (.docx)", to_docx_bytes(st.session_state["summary"]), file_name="summary.docx")
 
 st.caption("Tip: best OCR results at ~300 DPI, dark ink on light background.")
-

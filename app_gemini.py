@@ -100,23 +100,36 @@ st.caption("Upload or paste notes, and let AI clean, translate, and summarize th
 st.markdown(
     """
     <style>
-    .stApp { background-color: #f8fdf9; }
-    h1, h2, h3 { font-family: 'Segoe UI', sans-serif; color: #166534; }
+    /* Global background */
+    .stApp {
+        background-color: #f9f9fb;
+    }
+
+    /* Headings */
+    h1, h2, h3 {
+        font-family: 'Segoe UI', sans-serif;
+        color: #2c3e50;
+    }
+
+    /* Buttons */
     button[kind="primary"] {
-        background: linear-gradient(90deg, #22c55e, #15803d);
+        background: linear-gradient(90deg, #4b6cb7, #182848);
         color: white;
         border-radius: 10px;
         padding: 0.6em 1.2em;
         font-weight: 600;
     }
+
+    /* Text areas */
     textarea {
         border-radius: 12px !important;
-        border: 1px solid #bbf7d0 !important;
+        border: 1px solid #dcdcdc !important;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
+
 
 with st.expander("Environment & quick checks"):
     st.write("Using Gemini API key:", bool(GEMINI_API_KEY))
@@ -202,3 +215,4 @@ if st.session_state.get("summary"):
     st.download_button("Download summary (.docx)", to_docx_bytes(st.session_state["summary"]), file_name="summary.docx")
 
 st.caption("Tip: best OCR results at ~300 DPI, dark ink on light background.")
+

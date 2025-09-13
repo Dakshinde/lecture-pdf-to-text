@@ -9,7 +9,7 @@ from google import genai
 from google.genai import types as genai_types
 from docx import Document
 from google.oauth2 import service_account
-from streamlit_image_paste import paste_image
+from streamlit_paste_button import paste_image_button as pbutton
 from PIL import Image
 
 # Read secrets from Streamlit Cloud
@@ -105,7 +105,8 @@ with st.expander("Environment & quick checks"):
 uploaded = st.file_uploader("Upload handwritten notes (.png/.jpeg/.pdf)", type=["png","jpg","jpeg","pdf"])
 dpi = st.slider("OCR DPI", 150, 400, 220)
 
-pasted_img = paste_image(label="📋 Paste an image (Ctrl+V after screenshot)", key="pasted_img")
+# Corrected call to the paste button component
+pasted_img_result = pbutton(label="📋 Paste an image (Ctrl+V after screenshot)", key="pasted_img")
 
 pages = []
 
@@ -117,10 +118,10 @@ if uploaded:
     else:
         pages = [raw]
 
-# Handle pasted image
-elif pasted_img is not None:
+# Handle pasted image, accessing the image_data attribute from the PasteResult object
+elif pasted_img_result.image_data is not None:
     buf = io.BytesIO()
-    pasted_img.save(buf, format="PNG")
+    pasted_img_result.image_data.save(buf, format="PNG")
     pages = [buf.getvalue()]
 
 ocr_texts = []

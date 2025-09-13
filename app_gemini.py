@@ -94,7 +94,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("📖 Smart Notes Assistant (OCR → Translate → Summarize)")
+st.title("📖 Lecture Notes Assistant (OCR → Translate → Summarize)")
 st.caption("Upload or paste notes, and let AI clean, translate, and summarize them for you.")
 
 st.markdown(
@@ -243,3 +243,4 @@ if st.session_state.get("summary"):
     st.download_button("Download summary (.docx)", to_docx_bytes(st.session_state["summary"]), file_name="summary.docx")
 
 st.caption("Tip: best OCR results at ~300 DPI, dark ink on light background.")
+

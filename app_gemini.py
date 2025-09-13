@@ -107,26 +107,39 @@ st.markdown(
         color: #333;
     }
     
-    .stApp { 
-        background: linear-gradient(to right, #ff7e5f, #feb47b);
-        background-attachment: fixed;
+    .stApp {
+        background-color: #ffffff; /* white main background */
     }
+    header[data-testid="stHeader"] {
+        background: linear-gradient(to right, #ff7e5f, #feb47b);
+        padding: 1rem;
+    }
+
     
     h1, h2, h3 { 
         color: #1a5276; 
         font-weight: 600; 
     }
 
-    /* Cards / boxes */
-    .st-emotion-cache-1j5e61g, .st-emotion-cache-121p961 {
+    /* Expander (Environment & quick checks) */
+    .stExpander {
         background-color: white;
         border-radius: 12px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        padding: 2rem;
-        margin-bottom: 2rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
     }
 
-    button[kind="primary"] {
+    /* Text areas */
+    .stTextArea textarea {
+        border-radius: 8px !important;
+        border: 1px solid #dcdfe4 !important;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        background-color: #fafafa;
+    }
+
+    /* Buttons */
+    .stButton button {
         background: linear-gradient(to right, #ff7e5f, #feb47b); 
         color: white;
         border-radius: 8px;
@@ -136,16 +149,9 @@ st.markdown(
         border: none;
     }
     
-    button[kind="primary"]:hover {
+    .stButton button:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    
-    textarea, .st-emotion-cache-13ce3p5, .st-emotion-cache-10q2t3h {
-        border-radius: 8px !important;
-        border: 1px solid #dcdfe4 !important;
-        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-        background-color: #fafafa;
     }
     </style>
     """,
@@ -236,4 +242,5 @@ if st.session_state.get("summary"):
     st.download_button("Download summary (.docx)", to_docx_bytes(st.session_state["summary"]), file_name="summary.docx")
 
 st.caption("Tip: best OCR results at ~300 DPI, dark ink on light background.")
+
 

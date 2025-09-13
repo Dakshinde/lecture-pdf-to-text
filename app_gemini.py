@@ -97,24 +97,19 @@ st.set_page_config(
 st.title("📖 Smart Notes Assistant (OCR → Translate → Summarize)")
 st.caption("Upload or paste notes, and let AI clean, translate, and summarize them for you.")
 
-
-
 with st.expander("Environment & quick checks"):
     st.write("Using Gemini API key:", bool(GEMINI_API_KEY))
     st.write("Vision creds (GOOGLE_APPLICATION_CREDENTIALS):", bool(os.getenv("GOOGLE_APPLICATION_CREDENTIALS")))
     st.write("Gemini model:", GEN_MODEL)
-
 
 uploaded = st.file_uploader("Upload handwritten notes (.png/.jpeg/.pdf)", type=["png","jpg","jpeg","pdf"])
 dpi = st.slider("OCR DPI", 150, 400, 220)
 
 pasted_img = paste_image(label="📋 Paste an image (Ctrl+V after screenshot)", key="pasted_img")
 
-if pasted_img is not None:
-    buf = io.BytesIO()
-    pasted_img.save(buf, format="PNG")
-    pages = [buf.getvalue()]
 pages = []
+
+# Handle uploaded file
 if uploaded:
     raw = uploaded.read()
     if uploaded.type == "application/pdf" or uploaded.name.lower().endswith(".pdf"):
@@ -122,9 +117,11 @@ if uploaded:
     else:
         pages = [raw]
 
-else:
-    st.session_state['paste_result'] = 'No image data'
-
+# Handle pasted image
+elif pasted_img is not None:
+    buf = io.BytesIO()
+    pasted_img.save(buf, format="PNG")
+    pages = [buf.getvalue()]
 
 ocr_texts = []
 for i, p in enumerate(pages, 1):
@@ -183,5 +180,3 @@ if st.session_state.get("summary"):
     st.download_button("Download summary (.docx)", to_docx_bytes(st.session_state["summary"]), file_name="summary.docx")
 
 st.caption("Tip: best OCR results at ~300 DPI, dark ink on light background.")
-
-

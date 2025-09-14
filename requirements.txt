@@ -24,6 +24,7 @@ python-dotenv
 streamlit
 
 streamlit-paste-button
+streamlit-shadcn-ui
 
 
 

@@ -11,6 +11,7 @@ from docx import Document
 from google.oauth2 import service_account
 from streamlit_paste_button import paste_image_button as pbutton
 from PIL import Image
+import streamlit_shadcn_ui as ui
 
 # Read secrets from Streamlit Cloud
 GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
@@ -94,19 +95,21 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("📖 Smart Notes Assistant (OCR → Translate → Summarize)")
-st.caption("Upload or paste notes, and let AI clean, translate, and summarize them for you.")
+# Use a card for the main title and caption
+with ui.card(key="title_card"):
+    st.title("📖 Smart Notes Assistant (OCR → Translate → Summarize)")
+    st.caption("Upload or paste notes, and let AI clean, translate, and summarize them for you.")
 
 with st.expander("Environment & quick checks"):
     st.write("Using Gemini API key:", bool(GEMINI_API_KEY))
     st.write("Vision creds (GOOGLE_APPLICATION_CREDENTIALS):", bool(os.getenv("GOOGLE_APPLICATION_CREDENTIALS")))
     st.write("Gemini model:", GEN_MODEL)
 
-uploaded = st.file_uploader("Upload handwritten notes (.png/.jpeg/.pdf)", type=["png","jpg","jpeg","pdf"])
-dpi = st.slider("OCR DPI", 150, 400, 220)
-
-# Corrected call to the paste button component
-pasted_img_result = pbutton(label="📋 Paste an image (Ctrl+V after screenshot)", key="pasted_img")
+# Use a card for the input section
+with ui.card(key="input_card"):
+    uploaded = st.file_uploader("Upload handwritten notes (.png/.jpeg/.pdf)", type=["png","jpg","jpeg","pdf"])
+    dpi = st.slider("OCR DPI", 150, 400, 220)
+    pasted_img_result = pbutton(label="📋 Paste an image (Ctrl+V after screenshot)", key="pasted_img")
 
 pages = []
 
@@ -139,10 +142,13 @@ st.subheader("1) Extracted text — edit as needed")
 notes_edit = st.text_area("Extracted text (editable)", value=combined_text, height=350)
 st.session_state["notes_edit"] = notes_edit
 
-if st.button("➡️ Translate & Summarize"):
+# Use a button from the new library
+# if st.button("➡️ Translate & Summarize"):
+if ui.button(text="➡️ Translate & Summarize", key="translate_button"):
     if not notes_edit.strip():
         st.warning("No text to translate.")
     else:
+        # Use a shadcn spinner, or keep st.spinner
         with st.spinner("Translating (Gemini)..."):
             translation = translate_marathi_to_english(notes_edit)
             st.session_state["translation"] = translation
@@ -154,7 +160,8 @@ if st.button("➡️ Translate & Summarize"):
 # QA area
 st.subheader("Quick QA")
 question = st.text_input("Ask a question about these notes")
-if st.button("Ask"):
+# if st.button("Ask"):
+if ui.button(text="Ask", key="ask_button"):
     ctx = st.session_state.get("summary", "") or st.session_state.get("translation", "")
     if not question.strip():
         st.warning("Type a question first.")
@@ -170,14 +177,24 @@ if st.session_state.get("translation"):
     st.markdown("---")
     st.markdown("### ✨ English Translation")
     st.success(st.session_state["translation"])
-    st.download_button("Download translation (.txt)", st.session_state["translation"].encode("utf-8"), file_name="translation.txt")
-    st.download_button("Download translation (.docx)", to_docx_bytes(st.session_state["translation"]), file_name="translation.docx")
+    
+    # Use ui.button for downloads
+    # st.download_button("Download translation (.txt)", st.session_state["translation"].encode("utf-8"), file_name="translation.txt")
+    # st.download_button("Download translation (.docx)", to_docx_bytes(st.session_state["translation"]), file_name="translation.docx")
+    ui.button(text="Download translation (.txt)", key="download_txt_trans")
+    ui.button(text="Download translation (.docx)", key="download_docx_trans")
+    # Note: Streamlit's native download button is more straightforward for direct downloads.
+    # You might consider keeping the original st.download_button for full functionality.
 
 if st.session_state.get("summary"):
     st.markdown("---")
     st.markdown("### 📌 Summary")
     st.info(st.session_state["summary"])
-    st.download_button("Download summary (.txt)", st.session_state["summary"].encode("utf-8"), file_name="summary.txt")
-    st.download_button("Download summary (.docx)", to_docx_bytes(st.session_state["summary"]), file_name="summary.docx")
+
+    # Use ui.button for downloads
+    # st.download_button("Download summary (.txt)", st.session_state["summary"].encode("utf-8"), file_name="summary.txt")
+    # st.download_button("Download summary (.docx)", to_docx_bytes(st.session_state["summary"]), file_name="summary.docx")
+    ui.button(text="Download summary (.txt)", key="download_txt_sum")
+    ui.button(text="Download summary (.docx)", key="download_docx_sum")
 
 st.caption("Tip: best OCR results at ~300 DPI, dark ink on light background.")

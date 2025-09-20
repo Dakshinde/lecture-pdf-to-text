@@ -178,23 +178,33 @@ if st.session_state.get("translation"):
     st.markdown("### ✨ English Translation")
     st.success(st.session_state["translation"])
     
-    # Use ui.button for downloads
-    # st.download_button("Download translation (.txt)", st.session_state["translation"].encode("utf-8"), file_name="translation.txt")
-    # st.download_button("Download translation (.docx)", to_docx_bytes(st.session_state["translation"]), file_name="translation.docx")
-    ui.button(text="Download translation (.txt)", key="download_txt_trans")
-    ui.button(text="Download translation (.docx)", key="download_docx_trans")
-    # Note: Streamlit's native download button is more straightforward for direct downloads.
-    # You might consider keeping the original st.download_button for full functionality.
+    # Use st.download_button for full download functionality
+    st.download_button(
+        "Download translation (.txt)", 
+        st.session_state["translation"].encode("utf-8"), 
+        file_name="translation.txt"
+    )
+    st.download_button(
+        "Download translation (.docx)", 
+        to_docx_bytes(st.session_state["translation"]), 
+        file_name="translation.docx"
+    )
 
 if st.session_state.get("summary"):
     st.markdown("---")
     st.markdown("### 📌 Summary")
     st.info(st.session_state["summary"])
 
-    # Use ui.button for downloads
-    # st.download_button("Download summary (.txt)", st.session_state["summary"].encode("utf-8"), file_name="summary.txt")
-    # st.download_button("Download summary (.docx)", to_docx_bytes(st.session_state["summary"]), file_name="summary.docx")
-    ui.button(text="Download summary (.txt)", key="download_txt_sum")
-    ui.button(text="Download summary (.docx)", key="download_docx_sum")
+    # Use st.download_button for full download functionality
+    st.download_button(
+        "Download summary (.txt)", 
+        st.session_state["summary"].encode("utf-8"), 
+        file_name="summary.txt"
+    )
+    st.download_button(
+        "Download summary (.docx)", 
+        to_docx_bytes(st.session_state["summary"]), 
+        file_name="summary.docx"
+    )
 
 st.caption("Tip: best OCR results at ~300 DPI, dark ink on light background.")
